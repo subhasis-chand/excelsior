@@ -1,4 +1,5 @@
-# The GUI for machine learning. Do ML without coding...
+# Excelsior
+The GUI for machine learning. Do ML without coding...
 
 
 
