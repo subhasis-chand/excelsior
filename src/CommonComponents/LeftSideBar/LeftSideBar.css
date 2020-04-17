@@ -9,13 +9,17 @@ li {
     display: flex;
     align-items: center;
     padding-left: 1em;
-    background: rgb(83, 83, 83);
+    background: rgb(28,28,28);
     color: rgb(200, 200, 200);
     margin: 0.5em 0.5em 0 0.5em;
     cursor: pointer;
 }
 
-.list:hover {
-    background: rgb(28, 28, 28);
+.list-unselected:hover {
+    background: rgb(70,70,70);
+}
+
+.list-selected {
+    background: rgb(100, 100, 100);
 }
 
