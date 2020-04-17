@@ -7,7 +7,7 @@ export default class LinearRegresion extends Component {
 
 	render() {
 		return(
-			<div>LinearRegresion</div>
+			<div className=' main-content-size dark-background'>LinearRegresion</div>
 		)
 	}
 

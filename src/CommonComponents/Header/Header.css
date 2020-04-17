@@ -1,0 +1,13 @@
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background: rgb(28,28,28);
+    border-bottom: 1px solid grey;
+}
+
+.header-text {
+    color: coral;
+    font-size: 3em;
+}

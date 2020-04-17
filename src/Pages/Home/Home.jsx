@@ -7,7 +7,9 @@ class Home extends Component {
 
 	render() {
 		return(
-			<div>Home</div>
+			<div className='main-content-size dark-background'>
+				Home
+			</div>
 		)
 	}
 

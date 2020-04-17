@@ -1,0 +1,21 @@
+.left-side-bar {
+    background: rgb(38, 38, 38);
+    overflow-x: hidden;
+}
+
+li {
+    list-style-type: none;
+    height: 5%;
+    display: flex;
+    align-items: center;
+    padding-left: 1em;
+    background: rgb(83, 83, 83);
+    color: rgb(200, 200, 200);
+    margin: 0.5em 0.5em 0 0.5em;
+    cursor: pointer;
+}
+
+.list:hover {
+    background: rgb(28, 28, 28);
+}
+
