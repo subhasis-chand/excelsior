@@ -4,7 +4,7 @@
     justify-content: center;
     align-items: center;
     background: rgb(28,28,28);
-    border-bottom: 1px solid grey;
+    /* border-bottom: 5px solid rgb(38, 38, 38); */
 }
 
 .header-text {

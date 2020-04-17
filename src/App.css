@@ -26,4 +26,5 @@
 
 .dark-background {
     background: rgb(28, 28, 28);
+    border-top: 0.5em solid rgb(38,38,38);
 }
