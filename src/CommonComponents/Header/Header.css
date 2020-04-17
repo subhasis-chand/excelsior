@@ -11,3 +11,7 @@
     color: coral;
     font-size: 3em;
 }
+
+i {
+    margin-bottom: 1.5em !important;
+}

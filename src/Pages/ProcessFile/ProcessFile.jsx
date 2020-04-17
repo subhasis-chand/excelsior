@@ -7,7 +7,7 @@ export default class ProcessFile extends Component {
 
 	render() {
 		return(
-			<div>ProcessFile</div>
+			<div className=' main-content-size dark-background'>ProcessFile</div>
 		)
 	}
 
