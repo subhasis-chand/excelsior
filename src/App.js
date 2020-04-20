@@ -18,8 +18,6 @@ function App() {
     <Router>
       <div className='app'>
         <Header/>
-        <div className='app-body'>
-          <LeftSideBar/>
           <Switch>
             <Route path='/' exact component={ Home } />
             <Route path='/pca' exact component={ PCA } />
@@ -29,7 +27,6 @@ function App() {
             <Route path='/neural_networks' exact component={ NeuralNetworks } />
             <Route path='/decision_tree' exact component={ DecisionTrees } />
           </Switch>
-        </div>
       </div>
     </Router>
     

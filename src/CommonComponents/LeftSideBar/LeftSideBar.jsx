@@ -4,23 +4,16 @@ import './LeftSideBar.css';
 import { sidebarList } from './constants';
 
 class LeftSideBar extends Component {
-	constructor() {
-		super();
-		this.state = {
-			selectedList: '/',
-		}
-	}
-
-	handleClick = (selectedList) => {
-		this.setState({selectedList});
+	constructor(props) {
+		super(props);
 	}
 
 	render() {
-		const selectedList = this.state.selectedList;
+		const selectedList = this.props.path;
 		const finalList = sidebarList.map((element, index) => {
 			return(
-				<Link to={'/' + element.route} key={index}>
-					<li onClick={() => this.handleClick(element.route)}
+				<Link to={element.route} key={index}>
+					<li
 						className={ selectedList === element.route ? 'list-selected' : 'list-unselected' }>
 						{ element.displayName }
 					</li>
