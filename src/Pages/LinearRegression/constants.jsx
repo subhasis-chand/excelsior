@@ -1,0 +1,1 @@
+export const FILE_UPLOAD_GUIDELINES = 'Please upload only csv files for linear regression. The file must be cleaned properly. There should not be any non-numerical values, headers or Serial Nos. The last column must include the output labels. If your file is not in this format, then please visit to "File Processing" section and process your file for Linear Regression.';

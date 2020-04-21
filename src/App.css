@@ -23,17 +23,12 @@
 .main-content-size {
     width: 80%;
     height: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
 }
 
 .main-content-header {
-    height: 7%;
-    width: 100%;
-    color: white;
+    height: 8%;
     background: rgb(38, 38, 38);
-    margin: 0.25em;
+    margin: 0.6%;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -42,7 +37,30 @@
     font-size: 2em;
 }
 
+.main-content-body {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: grey;
+}
+
 .dark-background {
     background: rgb(28, 28, 28);
     border-top: 0.5em solid rgb(38,38,38);
+}
+
+.icon-div {
+    cursor: pointer;
+}
+
+.info-div-style {
+    color: black;
+    width: 50%;
+    border: 1px solid grey;
+    padding: 1em;
+    margin-top: 0.5em;
+    text-align: justify;
+    background: grey;
+    border-radius: 5px;
 }

@@ -9,7 +9,9 @@ class Header extends Component {
 		return(
 			<div className='header header-height'>
 				<div className='header-text'>EXCELSIOR</div>
-				<Icon name="glass martini" color='red' />
+				<div style={{paddingBottom: '1em'}}>
+					<Icon name="glass martini" color='red' />
+				</div>
 			</div>
 		)
 	}
