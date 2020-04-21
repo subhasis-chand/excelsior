@@ -1,5 +1,8 @@
 import React, { Component } from "react";
-import './LinearRegression.css';
+import axios from 'axios';
+import { Button, Input, Checkbox } from 'semantic-ui-react';
+import 'semantic-ui-css/semantic.min.css';
+import '../../styles/LinearRegression.css';
 import LeftSideBar from '../../CommonComponents/LeftSideBar/LeftSideBar'
 
 export default class LinearRegresion extends Component {
@@ -16,7 +19,10 @@ export default class LinearRegresion extends Component {
 		return(
 			<div className='app-body'>
 				<LeftSideBar path={ path }/>
-				<div className='dark-background main-content-size'>LinearRegresion</div>
+				<div className='dark-background main-content-size'>
+					<div className='main-content-header'>Linear Regresion</div>
+					
+				</div>
 			</div>
 		)
 	}

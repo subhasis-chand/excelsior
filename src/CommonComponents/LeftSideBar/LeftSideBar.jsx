@@ -1,12 +1,9 @@
 import React, { Component } from "react";
 import { Link } from 'react-router-dom';
-import './LeftSideBar.css';
+import '../../styles/LeftSideBar.css';
 import { sidebarList } from './constants';
 
 class LeftSideBar extends Component {
-	constructor(props) {
-		super(props);
-	}
 
 	render() {
 		const selectedList = this.props.path;

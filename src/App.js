@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import './App.css';
 
 import Header from './CommonComponents/Header/Header';
-import LeftSideBar from './CommonComponents/LeftSideBar/LeftSideBar';
 
 import Home from './Pages/Home';
 import PCA from './Pages/PCA';
