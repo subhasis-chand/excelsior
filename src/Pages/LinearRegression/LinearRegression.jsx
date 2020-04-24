@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from 'axios';
-import { Button, Icon, Slider,  } from 'semantic-ui-react';
+import { Icon  } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import '../../styles/LinearRegression.css';
 import LeftSideBar from '../../CommonComponents/LeftSideBar/LeftSideBar';
@@ -11,9 +11,12 @@ export default class LinearRegresion extends Component {
 			super();
 			this.state = {
 				path: match.path,
+				selectedFile: null,
 				percenatgeTraining: 70,
 				inputFileInfo: false,
 				shouldShuffle: true,
+				uploadStatus: '',
+				normalizeData: true,
 			}
 		}
 
@@ -26,13 +29,57 @@ export default class LinearRegresion extends Component {
 		this.setState({ shouldShuffle: !shouldShuffle })
 	}
 
+	handleNormalize = (event) => {
+		const { normalizeData } = this.state;
+		this.setState({ normalizeData: !normalizeData })
+	}
+
 	inputFileGuide = () => {
 		const { inputFileInfo } = this.state;
 		this.setState({ inputFileInfo : !inputFileInfo });
 	}
 
+	selectFileHandler=(event)=>{
+    this.setState({
+      selectedFile: event.target.files[0],
+      loaded: 0,
+    })
+	}
+	
+	uploadFileHandler = () => {
+		const { selectedFile } = this.state;
+		if (selectedFile) {
+			let data = new FormData()
+			data.append('file', selectedFile);
+			axios.post("http://127.0.0.1:5000/upload_input_file/".concat(this.state.selectedFile.name), data, {}).then(
+				res => {
+					this.setState({
+						uploadStatus: res.status === 200 ? 'success' : 'failed'
+					})
+				}
+			)	
+		} else {
+			this.setState({ uploadStatus: 'failed' })
+		}
+	}
+	
+	handleTrain = (event) => {
+    const { percenatgeTraining, shouldShuffle, normalizeData } = this.state;
+    axios.post("http://127.0.0.1:5000/linear_regression/", null,{ params: {
+      percenatgeTraining,
+			shouldShuffle,
+			normalizeData
+    }}).then(res => {
+      this.setState({
+        loss: res.data.loss,
+      })
+    })
+    .catch(err => console.warn(err));
+    event.preventDefault();
+  }
+
 	render() {
-		const { path, inputFileInfo, percenatgeTraining, shouldShuffle }  = this.state;
+		const { path, inputFileInfo, percenatgeTraining, shouldShuffle, uploadStatus, normalizeData }  = this.state;
 		return(
 			<div className='app-body'>
 				<LeftSideBar path={ path }/>
@@ -43,10 +90,18 @@ export default class LinearRegresion extends Component {
 
 						<div className="ui inverted transparent input main-content-body">
 							<Icon name="info circle" color='grey' onClick={this.inputFileGuide} className='icon-div' />
-							<input type="file" style={{ marginLeft: '1em', color: 'grey' }}/>
-							<button className="ui right floated button inverted teal">Upload File</button>
+							<input type="file" style={{ marginLeft: '1em', color: 'grey' }} onChange={this.selectFileHandler}/>
+							<button className="ui right floated button inverted teal" onClick={this.uploadFileHandler}>Upload File</button>
 						</div>
 						{ inputFileInfo ? <div className='info-div-style'>{ FILE_UPLOAD_GUIDELINES }</div> : null	}
+						<br/>
+						<div>
+							{uploadStatus === 'success' 
+								? <div style={{ color: 'green' }}><Icon name='thumbs up' color='green' /> Upload successful.</div>
+								: this.state.uploadStatus === 'failed'
+								? <div style={{ color: 'red' }}><Icon name='thumbs down' color='red' /> Upload failed.</div>
+								: null }
+						</div>
 
 						<div className="ui inverted divider"></div>
 
@@ -62,10 +117,12 @@ export default class LinearRegresion extends Component {
 							/>
 							<span style={{ marginLeft: '3em' }}>Shuffle while training: </span>
 							<input type='checkbox' name='shouldShuffle' checked={shouldShuffle} onChange={this.handleShuffle} />
+							<span style={{ marginLeft: '3em' }}>Normalize data: </span>
+							<input type='checkbox' name='normalizeData' checked={normalizeData} onChange={this.handleNormalize} />
 						</div>
 						<div className="ui inverted divider"></div>
 
-						<button className="ui left floated button inverted teal">Train Data</button>
+						<button className="ui left floated button inverted teal" onClick={this.handleTrain}>Train Data</button>
 
 					</div>
 
