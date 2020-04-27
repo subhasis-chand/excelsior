@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import axios from 'axios';
-import { Icon, Table, Label } from 'semantic-ui-react';
+import { Icon, Form, Button } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import LeftSideBar from '../../CommonComponents/LeftSideBar/LeftSideBar';
 import { FILE_UPLOAD_GUIDELINES } from './constants';
+import TableComponent from '../../CommonComponents/TableComponent/TableComponent'
 
 export default class ProcessFile extends Component {
 	constructor({match}) {
@@ -49,9 +50,12 @@ export default class ProcessFile extends Component {
 		}
 	}
 
+	editOptionHandler = (event) => {
+		console.log("event: ", event);
+	}
+
 	render() {
 		const { path, inputFileInfo, uploadStatus, fileContent }  = this.state;
-		console.log("file content: ", fileContent);
 		return(
 			<div className='app-body'>
 				<LeftSideBar path={ path }/>
@@ -88,64 +92,28 @@ export default class ProcessFile extends Component {
 						{
 							fileContent
 							?
-							<div style={{ width: '100%', height: '70%', overflow: 'scroll' }}>
-							<Table celled selectable inverted>
-								<Table.Header>
-									<Table.Row>
-										<Table.HeaderCell two wide column></Table.HeaderCell>
-										{
-											[...Array(fileContent[0].split(',').length).keys()].map((element, index) => {
-												return <Table.HeaderCell key={index}>Column {element + 1}</Table.HeaderCell>
-											})
-										}
-									</Table.Row>
-								</Table.Header>
-								<Table.Body>
-									{
-										fileContent.map((row, index) => {
-											return <Table.Row key={index}>
-												<Table.Cell>Row {index + 1}</Table.Cell>
-												{
-													row.split(',').map((col, colInd) => {
-														return <Table.Cell key={colInd}>{col}</Table.Cell>
-													})
-												}
-											</Table.Row>
-										})
-									}
-								</Table.Body>
-							</Table>
-							</div>
+								<TableComponent tableData={ fileContent }/>
 							: null
 						}
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-						<div>asfdg</div>
-    
-
-					
-
+						<div className="ui inverted divider"></div>
+						{
+							fileContent
+							?
+								<div style={{ width: '50%' }}>
+									<div style={{  color: 'tomato', fontSize: '20px' }}>Edit your file</div>
+									<br/>
+									<Form inverted style={{ color: 'grey' }} onSubmit={this.editOptionHandler}>
+										<Form.Input fluid label='Delete Rows' placeholder='1,2,4' />
+										<Form.Input fluid label='Delete Columns' placeholder='1,2,4' />
+										<Form.Input fluid label='Normalise Columns' placeholder='1,2,4' />
+										<Form.Checkbox label='Normalise all Columns' />
+										<Button type='submit'>Submit</Button>
+									</Form>
+									<br/>
+									<br/>
+								</div>
+							: null
+						}
 					</div>
 
 				</div>
