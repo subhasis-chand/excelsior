@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from 'axios';
-import { Icon, Form, Button } from 'semantic-ui-react';
+import { Icon } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import LeftSideBar from '../../CommonComponents/LeftSideBar/LeftSideBar';
 import { FILE_UPLOAD_GUIDELINES } from './constants';
@@ -15,6 +15,12 @@ export default class ProcessFile extends Component {
 				inputFileInfo: false,
 				uploadStatus: '',
 				fileContent:  null,
+				deleteRows: '',
+				deleteCols: '',
+				removeNaN: true,
+				removeHeader: true,
+				isEditOptionValid: true,
+				saveInBE: true
 			}
 		}
 
@@ -51,11 +57,47 @@ export default class ProcessFile extends Component {
 	}
 
 	editOptionHandler = (event) => {
-		console.log("event: ", event);
+		let name = event.target.name;
+    let value = event.target.value;
+		if (name === 'removeNaN') {
+			this.setState({
+				removeNaN: !this.state.removeNaN,
+			})
+		} else if(name === 'removeHeader') {
+			this.setState({
+				removeHeader: !this.state.removeHeader,
+			})
+		} else if (name === 'saveInBE') {
+			this.setState({ saveInBE: !this.state.saveInBE })
+		} else { this.setState({[name]: value}) }
+	}
+
+	editFileHandler = (event) => {
+		const { deleteRows, deleteCols, removeNaN, removeHeader, saveInBE } = this.state;
+		const isEditOptionValid = (/^[0-9, ]*$/.test(deleteCols)) && (/^[0-9, ]*$/.test(deleteRows));
+
+		isEditOptionValid ?
+    (
+			axios.post("http://127.0.0.1:5000/edit_file/", null,{ params: {
+				deleteCols,
+				deleteRows,
+				removeHeader,
+				removeNaN,
+				saveInBE
+			}}).then(res => {
+				this.setState({
+					isEditOptionValid,
+					fileContent: res.data.content
+				})
+			})
+			.catch(err => console.warn(err))
+		)
+		: this.setState({isEditOptionValid})
+    event.preventDefault();
 	}
 
 	render() {
-		const { path, inputFileInfo, uploadStatus, fileContent }  = this.state;
+		const { path, inputFileInfo, uploadStatus, fileContent, removeHeader, removeNaN, isEditOptionValid, saveInBE }  = this.state;
 		return(
 			<div className='app-body'>
 				<LeftSideBar path={ path }/>
@@ -95,25 +137,46 @@ export default class ProcessFile extends Component {
 								<TableComponent tableData={ fileContent }/>
 							: null
 						}
-						<div className="ui inverted divider"></div>
 						{
 							fileContent
 							?
-								<div style={{ width: '50%' }}>
-									<div style={{  color: 'tomato', fontSize: '20px' }}>Edit your file</div>
+							<div style={{display: 'flex', flexDirection: 'column'}}>
+								<div className="ui inverted divider"></div>
+								<a href="http://127.0.0.1:5000/download/inputFile.csv" download='inputFile.csv'>Download this file</a> 
+								<div className="ui inverted divider"></div>
+								<div style={{  color: 'tomato', fontSize: '20px' }}>Edit your file</div>
+								<br/>
+								<div style={{ width: '30%' }}>
+									Remove Header
+									<input type='checkbox' checked={ removeHeader } name='removeHeader' onChange={this.editOptionHandler}
+										style={{ float: 'right' }}/><br/>
+									Remove Rows with NaN values
+									<input type='checkbox' checked={ removeNaN } name='removeNaN' onChange={this.editOptionHandler}
+										style={{ float: 'right' }}/><br/>
+									Save the edited file in BE
+									<input type='checkbox' checked={ saveInBE } name='saveInBE' onChange={this.editOptionHandler}
+										style={{ float: 'right' }}/><br/>
+									
 									<br/>
-									<Form inverted style={{ color: 'grey' }} onSubmit={this.editOptionHandler}>
-										<Form.Input fluid label='Delete Rows' placeholder='1,2,4' />
-										<Form.Input fluid label='Delete Columns' placeholder='1,2,4' />
-										<Form.Input fluid label='Normalise Columns' placeholder='1,2,4' />
-										<Form.Checkbox label='Normalise all Columns' />
-										<Button type='submit'>Submit</Button>
-									</Form>
-									<br/>
-									<br/>
+									Delete Rows <br/>
+									<input type='text' name='deleteRows' onChange={this.editOptionHandler} style={{ width: '100%' }}/><br/><br/>
+									Delete Columns <br/>
+									<input type='text' name='deleteCols' onChange={this.editOptionHandler} style={{ width: '100%' }}/><br/><br/>
+									<button className="ui left floated button inverted teal" onClick={this.editFileHandler}>Edit File</button>
 								</div>
+								{
+									isEditOptionValid
+									? <br/>
+									: <div style={{color:'red'}}>
+											Please enter row or col no separated by comma. Any other charcter is not allowed
+									  </div>
+								}
+								<br/><br/><br/><br/><br/><br/><br/>
+							</div>		
 							: null
 						}
+						
+									
 					</div>
 
 				</div>
