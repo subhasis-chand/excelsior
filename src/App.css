@@ -65,3 +65,7 @@
     background: grey;
     border-radius: 5px;
 }
+
+.text-color {
+    color: grey
+}
