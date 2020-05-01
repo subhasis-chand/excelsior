@@ -67,5 +67,15 @@
 }
 
 .text-color {
-    color: grey
+    color: rgb(200, 200, 200)
+}
+
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
 }

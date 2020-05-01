@@ -1,11 +1,13 @@
 import React, { Component } from "react";
+import {Link} from 'react-router-dom';
 import axios from 'axios';
-import { Icon  } from 'semantic-ui-react';
+import { Icon } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import '../../styles/LinearRegression.css';
 import LeftSideBar from '../../CommonComponents/LeftSideBar/LeftSideBar';
 import TableComponent from '../../CommonComponents/TableComponent/TableComponent'
 import { FILE_UPLOAD_GUIDELINES } from './constants';
+import BarChart from '../../CommonComponents/BarChart/BarChart'
 
 export default class LinearRegresion extends Component {
 	constructor({match}) {
@@ -13,7 +15,7 @@ export default class LinearRegresion extends Component {
 			this.state = {
 				path: match.path,
 				selectedFile: null,
-				percenatgeTraining: 70,
+				percenatgeTraining: 85,
 				inputFileInfo: false,
 				shouldShuffle: true,
 				uploadStatus: '',
@@ -21,7 +23,9 @@ export default class LinearRegresion extends Component {
 				uploadLocalFile: false,
 				useBEFile: false,
 				fileContent: null,
-				opColNo: 0
+				opColNo: 0,
+				trainingStatus: '',
+				trainingData: null,
 			}
 		}
 
@@ -109,19 +113,25 @@ export default class LinearRegresion extends Component {
 	}
 	
 	handleTrain = (event) => {
-    const { percenatgeTraining, shouldShuffle, normalizeData } = this.state;
+    const { percenatgeTraining, shouldShuffle, normalizeData, opColNo } = this.state;
     axios.post("http://127.0.0.1:5000/linear_regression/", null,{ params: {
       percenatgeTraining,
 			shouldShuffle,
-			normalizeData
+			normalizeData,
+			opColNo,
     }}).then(res => {
       this.setState({
-        loss: res.data.loss,
+				trainingStatus: res.data.status,
+				trainingData: res.data
       })
     })
     .catch(err => console.warn(err));
     event.preventDefault();
-  }
+	}
+	
+	downloadWeightHandler = () => {
+		window.location.href='http://127.0.0.1:5000/download/weights.csv';
+	}
 
 	render() {
 		const {
@@ -134,13 +144,18 @@ export default class LinearRegresion extends Component {
 			uploadLocalFile,
 			useBEFile,
 			fileContent,
-			opColNo
+			opColNo,
+			trainingStatus,
+			trainingData
 		}  = this.state;
 		const trainingPossible = fileContent !== null;
+		console.log("status: ", trainingStatus);
+		console.log("data: ", trainingData);
+	
 		return(
 			<div className='app-body'>
 				<LeftSideBar path={ path }/>
-				<div className='dark-background main-content-size' >
+				<div className='dark-background main-content-size'>
 					<div className='main-content-header'>Linear Regresion</div>
 
 					<div className="ui inverted segment" style={{ margin: '0px' }}>
@@ -196,7 +211,7 @@ export default class LinearRegresion extends Component {
 								</>
 						: null
 						}
-						<div className='main-content-body'>
+						<div className='main-content-body text-color'>
 							<span>Percentage Training Data: { percenatgeTraining } </span>
 							<input
 								type="range"
@@ -246,7 +261,68 @@ export default class LinearRegresion extends Component {
 						>
 							Train Data
 						</button>
+						<br/>
+						<br/>
+						<br/>
+						<div className="ui inverted divider"></div>
+						{
+						trainingStatus === 'success'
+						? <>
+								<div style={{ color: 'tomato' }}>Here are the training Resluts</div>
+								<div className="ui inverted divider"></div>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>RMS Error</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.rmse }</div>
+									
+								</div>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>R2 Score</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.r2 }</div>
+								</div>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>Min Percentage Error</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.minPerErr }</div>
+								</div>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>Max Percentage Error</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.maxPerErr }</div>
+								</div>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>Avg Percentage Error</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.avgPerErr }</div>
+								</div>
+								<div className="ui inverted divider"></div>
+								<BarChart
+									yPred={ trainingData.ypred }
+									yTest={ trainingData.ytest }
+									label1='Predicted Values'
+									label2='Actual Values'
+								/>
+								<br/><br/>
+								<BarChart
+									yPred={ trainingData.perErr }
+									label1='Percentage Error'
+								/>
+								<br/>
+								<br/>
+								<button 
+									className="ui left floated button inverted teal"
+									type="button"
+									onClick={ this.downloadWeightHandler }
+								>
+									Download Weights
+								</button>
+
+							</>
+						: null
+
+					}
+
 					</div>
+					<div>
+				</div>
+				
+				<div style={{ marginBottom: '7em' }}></div>
 
 				</div>
 			</div>
