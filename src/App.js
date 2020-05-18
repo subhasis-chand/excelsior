@@ -5,7 +5,6 @@ import './App.css';
 import Header from './CommonComponents/Header/Header';
 
 import Home from './Pages/Home';
-import PCA from './Pages/PCA';
 import ProcessFile from './Pages/ProcessFile';
 import LinearRegression from './Pages/LinearRegression';
 import LogisticRegression from './Pages/LogisticRegression';
@@ -19,7 +18,6 @@ function App() {
         <Header/>
           <Switch>
             <Route path='/' exact component={ Home } />
-            <Route path='/pca' exact component={ PCA } />
             <Route path='/process_file' exact component={ ProcessFile } />
             <Route path='/linear_regression' exact component={ LinearRegression } />
             <Route path='/logistic_regression' exact component={ LogisticRegression } />

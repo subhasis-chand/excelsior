@@ -20,7 +20,11 @@ export default class ProcessFile extends Component {
 				removeNaN: true,
 				removeHeader: true,
 				isEditOptionValid: true,
-				saveInBE: true
+				saveInBE: true,
+				editDone: false,
+				opColNo: '',
+				keepFeatures: '',
+				isPCAoptValid: true
 			}
 		}
 
@@ -48,8 +52,8 @@ export default class ProcessFile extends Component {
 						fileContent: res.data.content
 					})
 				}
-			)	
-		} else if (selectedFile.name.slice(-4) !== '.csv'){
+			)
+		} else if (selectedFile && selectedFile.name.slice(-4) !== '.csv'){
 			this.setState({ uploadStatus: 'notcsv' })
 		} else {
 			this.setState({ uploadStatus: 'failed' })
@@ -87,7 +91,8 @@ export default class ProcessFile extends Component {
 			}}).then(res => {
 				this.setState({
 					isEditOptionValid,
-					fileContent: res.data.content
+					fileContent: res.data.content,
+					editDone: true
 				})
 			})
 			.catch(err => console.warn(err))
@@ -96,8 +101,40 @@ export default class ProcessFile extends Component {
     event.preventDefault();
 	}
 
+	applyPCAHandler = (event) => {
+		const { opColNo, keepFeatures } = this.state;
+		const isPCAoptValid = (/^[0-9]*$/.test(opColNo)) && (/^[0-9]*$/.test(keepFeatures));
+
+		isPCAoptValid ?
+    (
+			axios.post("http://127.0.0.1:5000/apply_pca/", null,{ params: {
+				opColNo,
+				keepFeatures
+			}}).then(res => {
+				this.setState({
+					isPCAoptValid,
+					fileContent: res.data.content,
+				})
+			})
+			.catch(err => console.warn(err))
+		)
+		: this.setState({isPCAoptValid})
+    event.preventDefault();
+	}
+
 	render() {
-		const { path, inputFileInfo, uploadStatus, fileContent, removeHeader, removeNaN, isEditOptionValid, saveInBE }  = this.state;
+		const {
+			path,
+			inputFileInfo,
+			uploadStatus,
+			fileContent,
+			removeHeader,
+			removeNaN,
+			isEditOptionValid,
+			saveInBE,
+			editDone,
+			isPCAoptValid
+		}  = this.state;
 		return(
 			<div className='app-body'>
 				<LeftSideBar path={ path }/>
@@ -171,12 +208,41 @@ export default class ProcessFile extends Component {
 											Please enter row or col no separated by comma. Any other charcter is not allowed
 									  </div>
 								}
-								<br/><br/><br/><br/><br/><br/><br/>
+								<div className="ui inverted divider"></div>
+								{editDone
+									? null
+									: <div style={{  color: 'tomato'}}>
+											Please edit your file and remove all the header, NaN values to apply PCA
+										</div>
+								}
+								
+								<div style={{  color: 'tomato', fontSize: '20px' }}>Apply PCA</div><br/><br/>
+								<div style={{ width: '30%' }}>
+									No of features present:
+									<div style={{ float: 'right' }}>{fileContent[0].length - 1}</div><br/>
+									<br/>
+									Output label column no: <br/>
+									<input disabled={!editDone} type='text' name='opColNo' onChange={this.editOptionHandler} style={{ width: '100%' }}/>
+									<br/><br/>
+									No of features to keep: <br/>
+									<input disabled={!editDone} type='text' name='keepFeatures' onChange={this.editOptionHandler} style={{ width: '100%' }}/>
+									<br/><br/>
+									<button disabled={!editDone} className="ui left floated button inverted teal" onClick={this.applyPCAHandler}>Apply PCA</button>
+									<br/>
+									{
+										isPCAoptValid
+										? <br/>
+										: <div style={{color:'red'}}>
+												<br/>Please enter numeric values only
+											</div>
+									}
+								</div>
 							</div>		
 							: null
 						}
 						
-									
+						
+						<br/><br/><br/><br/><br/><br/>
 					</div>
 
 				</div>
