@@ -24,7 +24,8 @@ export default class ProcessFile extends Component {
 				editDone: false,
 				opColNo: '',
 				keepFeatures: '',
-				isPCAoptValid: true
+				isPCAoptValid: true,
+				pcaFile: null
 			}
 		}
 
@@ -113,7 +114,7 @@ export default class ProcessFile extends Component {
 			}}).then(res => {
 				this.setState({
 					isPCAoptValid,
-					fileContent: res.data.content,
+					pcaFile: res.data.content,
 				})
 			})
 			.catch(err => console.warn(err))
@@ -133,7 +134,8 @@ export default class ProcessFile extends Component {
 			isEditOptionValid,
 			saveInBE,
 			editDone,
-			isPCAoptValid
+			isPCAoptValid,
+			pcaFile
 		}  = this.state;
 		return(
 			<div className='app-body'>
@@ -222,10 +224,10 @@ export default class ProcessFile extends Component {
 									<div style={{ float: 'right' }}>{fileContent[0].length - 1}</div><br/>
 									<br/>
 									Output label column no: <br/>
-									<input disabled={!editDone} type='text' name='opColNo' onChange={this.editOptionHandler} style={{ width: '100%' }}/>
+									<input placeholder='Int Value *' disabled={!editDone} type='text' name='opColNo' onChange={this.editOptionHandler} style={{ width: '100%' }}/>
 									<br/><br/>
 									No of features to keep: <br/>
-									<input disabled={!editDone} type='text' name='keepFeatures' onChange={this.editOptionHandler} style={{ width: '100%' }}/>
+									<input placeholder='Int Value *' disabled={!editDone} type='text' name='keepFeatures' onChange={this.editOptionHandler} style={{ width: '100%' }}/>
 									<br/><br/>
 									<button disabled={!editDone} className="ui left floated button inverted teal" onClick={this.applyPCAHandler}>Apply PCA</button>
 									<br/>
@@ -237,6 +239,21 @@ export default class ProcessFile extends Component {
 											</div>
 									}
 								</div>
+								{
+									pcaFile
+									?
+										<div>
+											<br/>
+											<div style={{ color: 'grey' }}>
+												After applying PCA, the first Ten lines of your file looks like as follows.
+												<br/> The First Column is the output label.
+												<br/> <a href="http://127.0.0.1:5000/download/reducedPCA.csv" download='reducedPCA.csv'>Download this file</a>
+												<br/><br/>
+											</div>
+											<TableComponent tableData={ pcaFile }/>
+										</div>
+									: null
+								}
 							</div>		
 							: null
 						}
