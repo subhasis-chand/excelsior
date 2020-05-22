@@ -4,7 +4,7 @@ import { Icon } from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 import '../../styles/LinearRegression.css';
 import LeftSideBar from '../../CommonComponents/LeftSideBar/LeftSideBar';
-import TableComponent from '../../CommonComponents/TableComponent/TableComponent'
+import TableComponent from '../../CommonComponents/TableComponent/TableComponent';
 import { FILE_UPLOAD_GUIDELINES } from './constants';
 import BarChart from '../../CommonComponents/BarChart/BarChart'
 
@@ -148,8 +148,6 @@ export default class LinearRegresion extends Component {
 			trainingData
 		}  = this.state;
 		const trainingPossible = fileContent !== null;
-		console.log("status: ", trainingStatus);
-		console.log("data: ", trainingData);
 	
 		return(
 			<div className='app-body'>

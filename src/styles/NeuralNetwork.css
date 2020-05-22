@@ -1,0 +1,9 @@
+.nn-box {
+    text-align: center;
+    background: rgb(100, 100, 100);
+    /* color: rgb(200, 200, 200); */
+    text-align: justify;
+    padding: 1em;
+    margin-bottom: 1em;
+    border-radius: 3px;
+}
