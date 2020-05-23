@@ -24,8 +24,8 @@ export default class NeuralNetworks extends Component {
 			netModel: null,
 			percenatgeTraining: 85,
 			noOfEpochs: 2,
-			doneTraining: false,
-			trainingResult: null,
+			trainingStatus: '',
+			trainingData: null,
 			learningRate: 0.01,
 			opColNo: 1,
 			batchSize: 200,
@@ -116,8 +116,8 @@ export default class NeuralNetworks extends Component {
 			shouldShuffle
     }}).then(res => {
       this.setState({
-				doneTraining: true,
-				trainingResult: res.data.trainingResult
+				trainingStatus: res.data.status,
+				trainingData: res.data
 			});
     })
     .catch(err => console.warn(err));
@@ -154,7 +154,9 @@ export default class NeuralNetworks extends Component {
 			learningRate,
 			opColNo,
 			batchSize,
-			shouldShuffle
+			shouldShuffle,
+			trainingData,
+			trainingStatus
 		}  = this.state;
 		
 		return(
@@ -293,6 +295,8 @@ export default class NeuralNetworks extends Component {
 											Enter parameters for Training this network 
 										</div>
 										<div className='nn-box'>
+											classification or regression<br/>
+											Normalize data:<br/>
 											Shuffle data while training:
 											<input
 												type='checkbox'
@@ -357,6 +361,7 @@ export default class NeuralNetworks extends Component {
 										>
 											Train this Neural Network
 										</button>
+										<br/>
 									</>
 								:
 								<button
@@ -367,10 +372,56 @@ export default class NeuralNetworks extends Component {
 									Add Layer
 								</button>
 							}
-							
 							<br/>
-							
 						</div>
+					</div>
+
+
+					<div className="ui inverted segment" style={{ width: '100%', display: 'flex', flexDirection: "column" }}>
+						<br/>
+						<br/>
+						<div className="ui inverted divider"></div>
+
+						{
+							trainingStatus === 'success'
+							?
+							<>
+								<div style={{ color: 'tomato' }}>Confusion Matrix</div><br/>
+								<div style={ trainingData.confusion_matrix.length === 2 ? { width: '30%' } : { width: '100%' }}>
+									<TableComponent tableData={ trainingData.confusion_matrix }/>
+								</div>
+								<br/>
+								<div className="ui inverted divider"></div>
+								<div style={{ color: 'tomato' }}>Here are the training Resluts
+								<br/>training loss
+								<br/>training accuracy
+								<br/>testing loss
+								<br/>testing accuracy
+								<br/>no of correct predicted
+								<br/>no of test data
+								</div>
+								<br/>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>Accuracy</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>91.234</div>
+								</div>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>Precision</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.precision }</div>
+								</div>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>Recall</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.recall }</div>
+								</div>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>F1 Score</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.f1 }</div>
+								</div>
+							</>
+							:null
+						}
+							
+							
 					</div>
 					<br/><br/><br/><br/><br/><br/>
 					
