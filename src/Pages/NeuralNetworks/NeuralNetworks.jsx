@@ -20,10 +20,23 @@ export default class NeuralNetworks extends Component {
 			noOfNodes: 'NA',
 			activationFunction: 'NA',
 			dropOutFraction: 0,
-			doneAddingLayer: false
+			doneAddingLayer: false,
+			netModel: null,
+			percenatgeTraining: 85,
+			noOfEpochs: 2,
+			doneTraining: false,
+			trainingResult: null,
+			learningRate: 0.01,
+			opColNo: 1,
+			batchSize: 200,
+			shouldShuffle: true
 		}
 	}
 	
+	shuffleHandler = (event) => {
+		const { shouldShuffle } = this.state;
+		this.setState({ shouldShuffle: !shouldShuffle })
+	}
 
 	uploadLocalFileHandler = () => {
 		this.setState({
@@ -40,7 +53,6 @@ export default class NeuralNetworks extends Component {
 					uploadLocalFile: false,
 					useBEFile: true,
 					fileContent: res.data.content,
-					opColNo: res.data.content[0].length,
 				})
 			}
 		)
@@ -80,14 +92,50 @@ export default class NeuralNetworks extends Component {
 
 	createNNHandler = (event) => {
 		const { networkArray } = this.state;
+		const newArr =  JSON.stringify(networkArray)
     axios.post("http://127.0.0.1:5000/build_nn/", null,{ params: {
-      networkArray
+      newArr
     }}).then(res => {
-			console.log(res.data);
-      this.setState({ oneAddingLayer: true });
+      this.setState({
+				doneAddingLayer: true,
+				netModel: res.data.neuralNet
+			});
     })
     .catch(err => console.warn(err));
     event.preventDefault();
+	}
+
+	trainNNHandler = (event) => {
+		const { percenatgeTraining, noOfEpochs, learningRate, batchSize, opColNo, shouldShuffle } = this.state;
+    axios.post("http://127.0.0.1:5000/train_nn/", null,{ params: {
+			percenatgeTraining,
+			noOfEpochs,
+			learningRate,
+			batchSize,
+			opColNo,
+			shouldShuffle
+    }}).then(res => {
+      this.setState({
+				doneTraining: true,
+				trainingResult: res.data.trainingResult
+			});
+    })
+    .catch(err => console.warn(err));
+    event.preventDefault();
+	}
+
+	printModel = (netModel) => {
+		const modelStr = JSON.stringify(netModel);
+		const modelList = modelStr.replace(/"/g, '').split('\\n');
+		return(
+			<div className='nn-box'>
+				{	modelList.map((item, index) => {
+					return(
+						<div key={index}>{item}</div>
+					)
+				})}
+			</div>
+		) 
 	}
 
 	render() {
@@ -99,7 +147,14 @@ export default class NeuralNetworks extends Component {
 			fileContent,
 			networkArray,
 			noOfNodes,
-			doneAddingLayer
+			doneAddingLayer,
+			netModel,
+			percenatgeTraining,
+			noOfEpochs,
+			learningRate,
+			opColNo,
+			batchSize,
+			shouldShuffle
 		}  = this.state;
 		
 		return(
@@ -177,15 +232,17 @@ export default class NeuralNetworks extends Component {
 								:
 								<>
 									{ this.displayNetworkNodes() }
-									<button
-										disabled={ networkArray.length <= 1 }
-										className="ui fluid button teal"
-										onClick={this.createNNHandler}
-									>
-										Create this Neural Network
-									</button>
+									{ netModel ? null :
+										<button
+											disabled={ networkArray.length <= 1 }
+											className="ui fluid button teal"
+											onClick={this.createNNHandler}
+										>
+											Create this Neural Network
+										</button>
+									}
+									
 									<div className="ui inverted divider"></div>
-									<br/>
 									{ doneAddingLayer
 										? null
 										:
@@ -225,7 +282,82 @@ export default class NeuralNetworks extends Component {
 								</>
 							}
 							{ doneAddingLayer
-								? null
+								? 
+									<>
+										<div style={{ color: 'tomato', textAlign: 'center', marginBottom: '0.5em' }}>
+											The following Neural Network is built
+										</div>
+										{ this.printModel(netModel) }
+										<div className="ui inverted divider"></div>
+										<div style={{ color: 'tomato', textAlign: 'center', marginBottom: '0.5em' }}>
+											Enter parameters for Training this network 
+										</div>
+										<div className='nn-box'>
+											Shuffle data while training:
+											<input
+												type='checkbox'
+												name='shouldShuffle'
+												checked={shouldShuffle}
+												onChange={this.shuffleHandler}
+											/><br/><br/>
+											Percentage Training Data: { percenatgeTraining } <br/>
+											<input
+												type="range"
+												min='0'
+												max='100'
+												step='1'
+												name='percenatgeTraining'
+												value={ percenatgeTraining }
+												onChange={ this.addLayerHandler }
+											/><br/><br/>
+											No of epochs:<br/>
+											<div className="ui input fluid">
+												<input
+													name='noOfEpochs'
+													onChange={this.addLayerHandler}
+													type="text"
+													placeholder="Default is 2"
+													value={(/^[0-9]*$/.test(noOfEpochs) ? noOfEpochs : '')}
+												/>
+											</div><br/>
+											Learning Rate for SGD Optimiser:<br/>
+											<div className="ui input fluid">
+												<input
+													name='learningRate'
+													onChange={this.addLayerHandler}
+													type="text"
+													placeholder="Default is 0.01"
+													value={(/^[0-9.]*$/.test(learningRate) ? learningRate : '')}
+												/>
+											</div>
+											Output Label Column Number (Must Check):<br/>
+											<div className="ui input fluid">
+												<input
+													name='opColNo'
+													onChange={this.addLayerHandler}
+													type="text"
+													placeholder="Default is 1"
+													value={(/^[0-9]*$/.test(opColNo) ? opColNo : '')}
+												/>
+											</div>
+											Training Batch Size:<br/>
+											<div className="ui input fluid">
+												<input
+													name='batchSize'
+													onChange={this.addLayerHandler}
+													type="text"
+													placeholder="Default is 200"
+													value={(/^[0-9]*$/.test(batchSize) ? batchSize : '')}
+												/>
+											</div>
+										</div><br/>
+										<button
+											className="ui fluid button teal"
+											onClick={this.trainNNHandler}
+										>
+											Train this Neural Network
+										</button>
+									</>
 								:
 								<button
 								disabled={ fileContent===null }
