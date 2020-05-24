@@ -3,7 +3,7 @@ import LeftSideBar from '../../CommonComponents/LeftSideBar/LeftSideBar'
 import { Icon, Dropdown } from 'semantic-ui-react';
 import axios from 'axios';
 import TableComponent from '../../CommonComponents/TableComponent/TableComponent';
-import { IP_LAYER_GUIDELINE, ACTIVATION_FUNCTION_OPTIONS } from './constants';
+import { IP_LAYER_GUIDELINE, ACTIVATION_FUNCTION_OPTIONS, LOSS_FUNCTION_OPTIONS } from './constants';
 import '../../styles/NeuralNetwork.css';
 
 export default class NeuralNetworks extends Component {
@@ -29,13 +29,22 @@ export default class NeuralNetworks extends Component {
 			learningRate: 0.01,
 			opColNo: 1,
 			batchSize: 200,
-			shouldShuffle: true
+			shouldShuffle: true,
+			normalizeData: true,
+			lossFunction: 'crossentropy',
+			trainableParams: null,
+			totalParams: null
 		}
 	}
 	
 	shuffleHandler = (event) => {
 		const { shouldShuffle } = this.state;
 		this.setState({ shouldShuffle: !shouldShuffle })
+	}
+
+	normalizeHandler = (event) => {
+		const { normalizeData } = this.state;
+		this.setState({ normalizeData: !normalizeData })
 	}
 
 	uploadLocalFileHandler = () => {
@@ -98,7 +107,9 @@ export default class NeuralNetworks extends Component {
     }}).then(res => {
       this.setState({
 				doneAddingLayer: true,
-				netModel: res.data.neuralNet
+				netModel: res.data.neuralNet,
+				trainableParams: res.data.trainableParams,
+				totalParams: res.data.totalParams
 			});
     })
     .catch(err => console.warn(err));
@@ -106,14 +117,25 @@ export default class NeuralNetworks extends Component {
 	}
 
 	trainNNHandler = (event) => {
-		const { percenatgeTraining, noOfEpochs, learningRate, batchSize, opColNo, shouldShuffle } = this.state;
+		const { percenatgeTraining,
+			noOfEpochs,
+			learningRate,
+			batchSize,
+			opColNo,
+			shouldShuffle,
+			normalizeData,
+			lossFunction
+		} = this.state;
     axios.post("http://127.0.0.1:5000/train_nn/", null,{ params: {
 			percenatgeTraining,
 			noOfEpochs,
 			learningRate,
 			batchSize,
 			opColNo,
-			shouldShuffle
+			shouldShuffle,
+			normalizeData,
+			lossFunction,
+
     }}).then(res => {
       this.setState({
 				trainingStatus: res.data.status,
@@ -124,7 +146,7 @@ export default class NeuralNetworks extends Component {
     event.preventDefault();
 	}
 
-	printModel = (netModel) => {
+	printModel = (netModel, trainableParams, totalParams) => {
 		const modelStr = JSON.stringify(netModel);
 		const modelList = modelStr.replace(/"/g, '').split('\\n');
 		return(
@@ -134,6 +156,10 @@ export default class NeuralNetworks extends Component {
 						<div key={index}>{item}</div>
 					)
 				})}
+				<br/>
+				No of Trainable Parameters: { trainableParams }
+				<br/>
+				No of Total Parameters: { totalParams }
 			</div>
 		) 
 	}
@@ -156,7 +182,10 @@ export default class NeuralNetworks extends Component {
 			batchSize,
 			shouldShuffle,
 			trainingData,
-			trainingStatus
+			trainingStatus,
+			normalizeData,
+			trainableParams,
+			totalParams
 		}  = this.state;
 		
 		return(
@@ -289,14 +318,25 @@ export default class NeuralNetworks extends Component {
 										<div style={{ color: 'tomato', textAlign: 'center', marginBottom: '0.5em' }}>
 											The following Neural Network is built
 										</div>
-										{ this.printModel(netModel) }
+										{ this.printModel(netModel, trainableParams, totalParams) }
 										<div className="ui inverted divider"></div>
 										<div style={{ color: 'tomato', textAlign: 'center', marginBottom: '0.5em' }}>
 											Enter parameters for Training this network 
 										</div>
 										<div className='nn-box'>
-											classification or regression<br/>
-											Normalize data:<br/>
+											classification (Available now) or regression (Coming soon)<br/>
+											<div class="ui buttons">
+												<button class="ui button teal" >Classification</button>
+												<div class="or"></div>
+												<button class="ui button" disabled={true}>Regression</button>
+											</div><br/><br/>
+											Normalize data:
+											<input
+												type='checkbox'
+												name='normalizeData'
+												checked={normalizeData}
+												onChange={this.normalizeHandler}
+											/><br/><br/>
 											Shuffle data while training:
 											<input
 												type='checkbox'
@@ -314,6 +354,15 @@ export default class NeuralNetworks extends Component {
 												value={ percenatgeTraining }
 												onChange={ this.addLayerHandler }
 											/><br/><br/>
+											Choose a loss function:<br/>
+											<Dropdown
+												placeholder='Select a Loss Function (Default is Cross Entropy Loss)'
+												fluid
+												options={LOSS_FUNCTION_OPTIONS}
+												selection
+												onChange={this.addLayerHandler}
+												name='lossFunction'
+											/><br/>
 											No of epochs:<br/>
 											<div className="ui input fluid">
 												<input
@@ -333,7 +382,7 @@ export default class NeuralNetworks extends Component {
 													placeholder="Default is 0.01"
 													value={(/^[0-9.]*$/.test(learningRate) ? learningRate : '')}
 												/>
-											</div>
+											</div><br/>
 											Output Label Column Number (Must Check):<br/>
 											<div className="ui input fluid">
 												<input
@@ -343,7 +392,7 @@ export default class NeuralNetworks extends Component {
 													placeholder="Default is 1"
 													value={(/^[0-9]*$/.test(opColNo) ? opColNo : '')}
 												/>
-											</div>
+											</div><br/>
 											Training Batch Size:<br/>
 											<div className="ui input fluid">
 												<input
@@ -392,18 +441,20 @@ export default class NeuralNetworks extends Component {
 								</div>
 								<br/>
 								<div className="ui inverted divider"></div>
-								<div style={{ color: 'tomato' }}>Here are the training Resluts
-								<br/>training loss
-								<br/>training accuracy
-								<br/>testing loss
-								<br/>testing accuracy
-								<br/>no of correct predicted
-								<br/>no of test data
-								</div>
+								<div style={{ color: 'tomato' }}>Here are the training Resluts</div>
+								
 								<br/>
 								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>No of Correct Predictions</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.correct }</div>
+								</div>
+								<div className='flex-row text-color'>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>Total no of test data</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.total }</div>
+								</div>
+								<div className='flex-row text-color'>
 									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>Accuracy</div>
-									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>91.234</div>
+									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>{ trainingData.accuracy }</div>
 								</div>
 								<div className='flex-row text-color'>
 									<div style={{ width: '30%', border: '0.5px solid grey', padding: '0.5em', background: 'rgb(38, 38, 38)' }}>Precision</div>

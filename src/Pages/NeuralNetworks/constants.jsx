@@ -5,3 +5,9 @@ export const ACTIVATION_FUNCTION_OPTIONS = [
 	{ key: 2, text: 'Sigmoid', value: 'sigmoid' },
 	{ key: 3, text: 'Soft Max', value: 'softmax' },
 ]
+
+export const LOSS_FUNCTION_OPTIONS = [
+	{ key: 1, text: 'MSE Loss', value: 'mse' },
+	{ key: 2, text: 'NLL Loss', value: 'nll' },
+	{ key: 3, text: 'Cross Entropy Loss', value: 'crossentropy' },
+]
