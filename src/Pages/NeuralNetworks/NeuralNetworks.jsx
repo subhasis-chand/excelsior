@@ -55,6 +55,34 @@ export default class NeuralNetworks extends Component {
 		})
 	}
 
+	selectFileHandler=(event)=>{
+    this.setState({
+      selectedFile: event.target.files[0],
+      loaded: 0,
+    })
+	}
+
+	uploadFileHandler = () => {
+		const { selectedFile } = this.state;
+		console.log("inside upload file handler", selectedFile, selectedFile.name);
+		if (selectedFile && selectedFile.name.slice(-4) === '.csv') {
+			let data = new FormData()
+			data.append('file', selectedFile);
+			axios.post("http://127.0.0.1:5000/upload_input_file/".concat(this.state.selectedFile.name), data, {}).then(
+				res => {
+					this.setState({
+						uploadStatus: res.status === 200 ? 'success' : 'failed',
+						fileContent: res.data.content
+					})
+				}
+			)
+		} else if (selectedFile && selectedFile.name.slice(-4) !== '.csv'){
+			this.setState({ uploadStatus: 'notcsv' })
+		} else {
+			this.setState({ uploadStatus: 'failed' })
+		}
+	}
+
 	useBEFileHandler = () => {
 		axios.post("http://127.0.0.1:5000/get_be_file/").then(
 			res => {
@@ -137,6 +165,7 @@ export default class NeuralNetworks extends Component {
 			lossFunction,
 
     }}).then(res => {
+			console.log("training data: ", res.data)
       this.setState({
 				trainingStatus: res.data.status,
 				trainingData: res.data
@@ -187,7 +216,8 @@ export default class NeuralNetworks extends Component {
 			trainableParams,
 			totalParams
 		}  = this.state;
-		
+		console.log("training data: ", trainingData);
+		console.log("training status: ", trainingStatus);
 		return(
 			<div className='app-body'>
 				<LeftSideBar path={ path }/>
@@ -325,6 +355,8 @@ export default class NeuralNetworks extends Component {
 										</div>
 										<div className='nn-box'>
 											classification (Available now) or regression (Coming soon)<br/>
+											{/* ask for binary or multi class classification */}
+											{/* show the loss functions accordingly */}
 											<div class="ui buttons">
 												<button class="ui button teal" >Classification</button>
 												<div class="or"></div>
