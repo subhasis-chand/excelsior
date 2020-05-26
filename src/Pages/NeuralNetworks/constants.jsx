@@ -6,8 +6,13 @@ export const ACTIVATION_FUNCTION_OPTIONS = [
 	{ key: 3, text: 'Soft Max', value: 'softmax' },
 ]
 
-export const LOSS_FUNCTION_OPTIONS = [
+export const LOSS_FUNCTION_BINARY = [
 	{ key: 1, text: 'MSE Loss', value: 'mse' },
+	{ key: 3, text: 'Binary Cross Entropy Loss', value: 'binarycrossentropy' },
+	{ key: 2, text: 'BCE with logits Loss', value: 'bcewithlogits' },
+]
+
+export const LOSS_FUNCTION_MULTICLASS = [
 	{ key: 2, text: 'NLL Loss', value: 'nll' },
 	{ key: 3, text: 'Cross Entropy Loss', value: 'crossentropy' },
 ]

@@ -3,7 +3,12 @@ import LeftSideBar from '../../CommonComponents/LeftSideBar/LeftSideBar'
 import { Icon, Dropdown } from 'semantic-ui-react';
 import axios from 'axios';
 import TableComponent from '../../CommonComponents/TableComponent/TableComponent';
-import { IP_LAYER_GUIDELINE, ACTIVATION_FUNCTION_OPTIONS, LOSS_FUNCTION_OPTIONS } from './constants';
+import {
+	IP_LAYER_GUIDELINE,
+	ACTIVATION_FUNCTION_OPTIONS,
+	LOSS_FUNCTION_BINARY,
+	LOSS_FUNCTION_MULTICLASS
+} from './constants';
 import '../../styles/NeuralNetwork.css';
 
 export default class NeuralNetworks extends Component {
@@ -31,9 +36,11 @@ export default class NeuralNetworks extends Component {
 			batchSize: 200,
 			shouldShuffle: true,
 			normalizeData: true,
-			lossFunction: 'crossentropy',
+			lossFunction: 'mse',
 			trainableParams: null,
-			totalParams: null
+			totalParams: null,
+			modelType: 'binaryclassification',
+			loading: false
 		}
 	}
 	
@@ -55,16 +62,20 @@ export default class NeuralNetworks extends Component {
 		})
 	}
 
-	selectFileHandler=(event)=>{
+	selectFileHandler= (event) =>{
     this.setState({
       selectedFile: event.target.files[0],
       loaded: 0,
     })
 	}
 
+	classificationHandler = (event) => {
+		const modelType = event.target.name;
+		this.setState({ modelType: modelType === 'modelForMC' ? 'multiclassclassification' : 'binaryclassification' });
+	}
+
 	uploadFileHandler = () => {
 		const { selectedFile } = this.state;
-		console.log("inside upload file handler", selectedFile, selectedFile.name);
 		if (selectedFile && selectedFile.name.slice(-4) === '.csv') {
 			let data = new FormData()
 			data.append('file', selectedFile);
@@ -152,8 +163,10 @@ export default class NeuralNetworks extends Component {
 			opColNo,
 			shouldShuffle,
 			normalizeData,
-			lossFunction
+			lossFunction,
+			modelType,
 		} = this.state;
+		this.setState({ loading: true })
     axios.post("http://127.0.0.1:5000/train_nn/", null,{ params: {
 			percenatgeTraining,
 			noOfEpochs,
@@ -163,15 +176,18 @@ export default class NeuralNetworks extends Component {
 			shouldShuffle,
 			normalizeData,
 			lossFunction,
-
+			modelType
     }}).then(res => {
-			console.log("training data: ", res.data)
       this.setState({
 				trainingStatus: res.data.status,
-				trainingData: res.data
+				trainingData: res.data,
+				loading: false
 			});
     })
-    .catch(err => console.warn(err));
+    .catch(err => {
+			console.warn(err);
+			this.setState({ loading: false });
+		});
     event.preventDefault();
 	}
 
@@ -214,10 +230,11 @@ export default class NeuralNetworks extends Component {
 			trainingStatus,
 			normalizeData,
 			trainableParams,
-			totalParams
+			totalParams,
+			modelType,
+			loading
 		}  = this.state;
-		console.log("training data: ", trainingData);
-		console.log("training status: ", trainingStatus);
+		console.log("loading...........: ", loading);
 		return(
 			<div className='app-body'>
 				<LeftSideBar path={ path }/>
@@ -354,13 +371,27 @@ export default class NeuralNetworks extends Component {
 											Enter parameters for Training this network 
 										</div>
 										<div className='nn-box'>
-											classification (Available now) or regression (Coming soon)<br/>
+											classification (Available now) or regression (Coming soon)<br/><br/>
 											{/* ask for binary or multi class classification */}
 											{/* show the loss functions accordingly */}
-											<div class="ui buttons">
-												<button class="ui button teal" >Classification</button>
-												<div class="or"></div>
-												<button class="ui button" disabled={true}>Regression</button>
+											<div className="ui buttons fluid">
+												<button
+													name='modelForBC'
+													onClick={ this.classificationHandler }
+													className= { modelType === 'binaryclassification' ? "ui button brown active" : "ui button inverted brown"} 
+												>
+													Binary Classification
+												</button>
+												<div className="or"></div>
+												<button
+													name='modelForMC'
+													onClick={ this.classificationHandler }
+													className= { modelType === 'multiclassclassification' ? "ui button brown active" : "ui button inverted brown"} 
+												>
+													Multiclass Classification
+												</button>
+												<div className="or"></div>
+												<button className="ui button inverted brown" disabled={true} >Regression</button>
 											</div><br/><br/>
 											Normalize data:
 											<input
@@ -388,9 +419,9 @@ export default class NeuralNetworks extends Component {
 											/><br/><br/>
 											Choose a loss function:<br/>
 											<Dropdown
-												placeholder='Select a Loss Function (Default is Cross Entropy Loss)'
+												placeholder='Select a Loss Function (Default is MSE Loss)'
 												fluid
-												options={LOSS_FUNCTION_OPTIONS}
+												options={modelType === 'binaryclassification' ? LOSS_FUNCTION_BINARY : LOSS_FUNCTION_MULTICLASS}
 												selection
 												onChange={this.addLayerHandler}
 												name='lossFunction'
@@ -437,7 +468,7 @@ export default class NeuralNetworks extends Component {
 											</div>
 										</div><br/>
 										<button
-											className="ui fluid button teal"
+											className={loading ? "ui fluid button teal loading" : "ui fluid button teal"} 
 											onClick={this.trainNNHandler}
 										>
 											Train this Neural Network
