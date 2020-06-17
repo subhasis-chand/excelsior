@@ -12,15 +12,15 @@ no need to re-upload.
 
 Cassical machine learning algorithms such as Linear Regression, Logistic Regression and 
 Decision Trees can be implemented with just a few clicks. The confusion matrix
-and other results and graphs are plotted automatically.
+and other results and graphs are plotted automatically after training.
 
 The most important feature is the Neural Networks. Even deep nets can be trained using 
 excelsior. There are no application which let you add layers in neural net with click of buttons.
 Excelsior provides the best way to build neural nets and test your data.
 
-## This if frontend. Run the backend first.
+## This is frontend. Run the backend first.
 
-This application is the frontend that provides the user interface. All the calculations happens in the backend. So with out the backend running, this app will not work. So run the backend before starting this application. The backend runs on flask and python3. It available as [ExcelsiorBee]((https://github.com/subhasis-chand/ExcelsiorBee)). Follow the instructions provided there to install the dependancies and start the backend. 
+This application is the frontend that provides the user interface. All the calculations happens in the backend. So with out the backend running, this app will not work. So run the backend before starting this application. The backend runs on flask and python3. It is available as [ExcelsiorBee](https://github.com/subhasis-chand/ExcelsiorBee). Follow the instructions provided there to install the dependancies and start the backend. 
 
 ## Available Scripts
 
